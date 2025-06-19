@@ -20,7 +20,7 @@ public class ShopeaseController {
 	@GetMapping("/demo")
 	public Map<String, Object> getCourtOrderDetailsReport() {
 		System.err.println("kosie");
-		return commonQueryAPIUtils.apiService("data", repo.test());
+		return commonQueryAPIUtils.apiService("products", repo.test());
 	}
   	
 

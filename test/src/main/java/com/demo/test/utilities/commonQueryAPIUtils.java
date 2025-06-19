@@ -48,13 +48,13 @@ public class commonQueryAPIUtils {
 		Map<String, Object> final_data = new LinkedHashMap<String, Object>();
 		try {
 			if (repomethod.size() > 0) {
-				final_data.put("status", true);
+				final_data.put("success", true);
 				final_data.put("ResponseCode", "01");
 				final_data.put("ResponseDesc", "data found");
 				final_data.put(apiServiceName, repomethod);
 				final_data.put("data_count", repomethod.size());
 			} else {
-				final_data.put("status", false);
+				final_data.put("success", false);
 				final_data.put("ResponseCode", "03");
 				final_data.put("ResponseDesc", "No data found");
 				final_data.put(apiServiceName, "No data found");
@@ -62,7 +62,7 @@ public class commonQueryAPIUtils {
 			}
 		} catch (Exception e) {
 
-			final_data.put("status", false);
+			final_data.put("success", false);
 			final_data.put("ResponseCode", "02");
 			final_data.put("ResponseDesc", "Internal server issue");
 			final_data.put(apiServiceName, "No data found");
