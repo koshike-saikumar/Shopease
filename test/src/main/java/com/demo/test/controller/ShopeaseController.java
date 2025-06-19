@@ -22,6 +22,12 @@ public class ShopeaseController {
 		System.err.println("kosie");
 		return commonQueryAPIUtils.apiService("products", repo.test());
 	}
+	
+	@GetMapping("/sai")
+	String sai() {
+		return "hiiiiiiiiiiiiiii";
+		
+	}
   	
 
 }
