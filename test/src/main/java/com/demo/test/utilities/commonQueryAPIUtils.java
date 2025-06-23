@@ -44,32 +44,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 @Service
 public class commonQueryAPIUtils {
 
-	public static Map<String, Object> apiService(String apiServiceName, List<Map<String, Object>> repomethod) {
-		Map<String, Object> final_data = new LinkedHashMap<String, Object>();
-		try {
-			if (repomethod.size() > 0) {
-				final_data.put("success", true);
-				final_data.put("ResponseCode", "01");
-				final_data.put("ResponseDesc", "data found");
-				final_data.put(apiServiceName, repomethod);
-				final_data.put("data_count", repomethod.size());
-			} else {
-				final_data.put("success", false);
-				final_data.put("ResponseCode", "03");
-				final_data.put("ResponseDesc", "No data found");
-				final_data.put(apiServiceName, "No data found");
-				final_data.put("data_count", 0);
-			}
-		} catch (Exception e) {
-
-			final_data.put("success", false);
-			final_data.put("ResponseCode", "02");
-			final_data.put("ResponseDesc", "Internal server issue");
-			final_data.put(apiServiceName, "No data found");
-			final_data.put("data_count", 0);
-		}
-		return final_data;
-	}
+	
 
 	public static Map<String, Object> apiServicemap(String apiServiceName, Map<String, Object> repomethod) {
 		Map<String, Object> final_data = new LinkedHashMap<String, Object>();
@@ -208,20 +183,7 @@ public class commonQueryAPIUtils {
 		return final_data;
 	}
 
-	public static String validationService(List<Object> values, List<String> names) {
-		String message = "";
-		try {
-			for (int i = 0; i < values.size(); i++) {
-				if (Objects.isNull(values.get(i)) || "".equals(values.get(i))) {
-					message += names.get(i) + " is required. ";
-				}
-			}
-		} catch (Exception e) {
 
-			message = "Internal Server Issue";
-		}
-		return message;
-	}
 
 	public static String validationServiceWithIndex(List<Object> values, List<String> names, Integer index) {
 		String message = "";
@@ -289,18 +251,7 @@ public class commonQueryAPIUtils {
 		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(final_data);
 	}
 
-	public static ResponseEntity<?> manualResponse(String code, String message) {
-		Map<String, Object> final_data = new LinkedHashMap<String, Object>();
-		if ("01".equals(code)) {
-			final_data.put("status", true);
-		} else {
-			final_data.put("status", false);
-		}
-		final_data.put("ResponseCode", code);
-		final_data.put("ResponseDesc", message);
-
-		return ResponseEntity.ok().body(final_data);
-	}
+	
 
 	public static Map<String, Object> manualResponsemap(String code, String message) {
 		Map<String, Object> final_data = new LinkedHashMap<String, Object>();
@@ -840,5 +791,120 @@ public class commonQueryAPIUtils {
 		}
 		return responseMap;
 	}
+	
+	
+	
+	//////////////////////////////////////sai
+	
+	public static ResponseEntity<?> manualResponse(String code, String message) {
+		Map<String, Object> final_data = new LinkedHashMap<String, Object>();
+		if ("01".equals(code)) {
+			final_data.put("status", true);
+		} else {
+			final_data.put("status", false);
+		}
+		final_data.put("code", code);
+		final_data.put("message", message);
+
+		return ResponseEntity.ok().body(final_data);
+	}
+	
+	public static ResponseEntity<Map<String, Object>> sResponse(String message) {
+		Map<String, Object> final_data = new LinkedHashMap<String, Object>();
+		final_data.put("status", true);
+		final_data.put("code", "01");
+		final_data.put("message", message);
+
+		return ResponseEntity.ok().body(final_data);
+	}
+	
+	
+	public static ResponseEntity<Map<String, Object>> fDynamicResponse(String message) {
+		Map<String, Object> final_data = new LinkedHashMap<String, Object>();
+		final_data.put("status", false);
+		final_data.put("code", "02");
+		final_data.put("message", message);
+
+		return ResponseEntity.ok().body(final_data);
+	}
+	
+	public static ResponseEntity<?> fStaticResponse(String errorMessage) {
+		Map<String, Object> final_data = new LinkedHashMap<String, Object>();
+
+		final_data.put("status", false);
+
+		if ("02".equals(errorMessage) || errorMessage.isEmpty()) {
+			final_data.put("code", "02");
+			final_data.put("message", "Submission Failed Due To: Internal Server Issue");
+		} else {
+			final_data.put("code", "03");
+			final_data.put("message", "Submission Failed Due To: " + errorMessage);
+		}
+
+		return ResponseEntity.ok().body(final_data);
+	}
+	
+	
+	public static ResponseEntity<Map<String, Object>> fCatchResponse(Exception ex) {
+		Map<String, Object> final_data = new LinkedHashMap<String, Object>();
+		LocalDateTime logTime = LocalDateTime.now();
+		String logId = logTime.format(DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS"));
+		final_data.put("status", false);
+		final_data.put("code", "02");
+		final_data.put("message", "Failed Due To: Internal Server Issue. Time: " + logTime + ". Log Id: " + logId);
+		System.out.println("====> ERROR :::: LOG ID: " + logId + " :::: LOG TIME: " + logTime + " :::: ERROR <====");
+		exceptionLog(ex);
+		return ResponseEntity.ok().body(final_data);
+	}
+	
+	
+	public static Map<String, Object> apiService(String apiServiceName, List<Map<String, Object>> repomethod) {
+		Map<String, Object> final_data = new LinkedHashMap<String, Object>();
+		try {
+			if (repomethod.size() > 0) {
+				final_data.put("status", true);
+				final_data.put("code", "01");
+				final_data.put("message", "data found");
+				final_data.put(apiServiceName, repomethod);
+				final_data.put("data_count", repomethod.size());
+			} else {
+				final_data.put("status", false);
+				final_data.put("code", "03");
+				final_data.put("message", "No data found");
+				final_data.put(apiServiceName, "No data found");
+				final_data.put("data_count", 0);
+			}
+		} catch (Exception e) {
+
+			final_data.put("success", false);
+			final_data.put("ResponseCode", "02");
+			final_data.put("ResponseDesc", "Internal server issue");
+			final_data.put(apiServiceName, "No data found");
+			final_data.put("data_count", 0);
+		}
+		return final_data;
+	}
+	
+	
+	public static String validationService(List<Object> values, List<String> names) {
+		String message = "";
+		try {
+			for (int i = 0; i < values.size(); i++) {
+				if (Objects.isNull(values.get(i)) || "".equals(values.get(i))) {
+					message += names.get(i) + " is required. ";
+				}
+			}
+		} catch (Exception e) {
+
+			message = "Internal Server Issue";
+		}
+		return message;
+	}
+	
+	
+	
+	
+	
+	
 
 }
