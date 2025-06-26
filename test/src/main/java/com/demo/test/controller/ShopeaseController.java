@@ -25,8 +25,8 @@ public class ShopeaseController {
 	
 	@GetMapping("/sai")
 	String sai() {
-		return "hiiiiiiiiiiiiiii";
-		
+		return "hi sai";
+
 	}
   	
 
