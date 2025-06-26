@@ -38,7 +38,7 @@ public class UserController {
 
 	@GetMapping("/user-details")
 	public Map<String, Object> userDetails(@RequestParam String email) {
-		return commonQueryAPIUtils.apiService("user", userRepo.userDetails(email));
+		return commonQueryAPIUtils.apiService("us er", userRepo.userDetails(email));
 	}
 
 }
