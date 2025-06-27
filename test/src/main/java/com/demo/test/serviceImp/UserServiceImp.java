@@ -37,7 +37,6 @@ public class UserServiceImp implements userService {
 					// return GenerateJwtToken(getUserDetails.get(0));
 					return commonQueryAPIUtils.sResponse(" Login successful");
 
-
 				} else {
 					System.err.println("user fail");
 					return commonQueryAPIUtils.manualResponse("02", "Invalid credentials!");
@@ -49,8 +48,7 @@ public class UserServiceImp implements userService {
 			return commonQueryAPIUtils.manualResponse("02", "Invalid credentials!");
 		}
 	}
-	
-	
+
 //	private String GenerateJwtToken(Map<String, Object>  user)   {
 //        var key = Encoding.UTF8.GetBytes("YourSuperLongSecretKeyWithMoreThan32Characters!");
 //        var claims = new List<Claim>
@@ -69,7 +67,6 @@ public class UserServiceImp implements userService {
 //        return new JwtSecurityTokenHandler().WriteToken(token);
 //    }
 //}
-
 
 	public ResponseEntity<?> createUser(UserRequest user) {
 		String message = "";
@@ -93,6 +90,29 @@ public class UserServiceImp implements userService {
 			}
 
 		} catch (Exception e) {
+			return commonQueryAPIUtils.fCatchResponse(e);
+		}
+	}
+
+	public ResponseEntity<?> updateProfile(UserRequest user) {
+		String message = "";
+
+		try {
+			String password = user.getPassword();
+			UserEntity entity = new UserEntity();
+			entity.setEmail(user.getEmail().trim().toLowerCase());
+			entity.setName(user.getName().trim());
+
+			if (password != null) {
+				entity.setPassword(user.getPassword().trim());
+			 } 
+ 
+			userRepo.save(entity);
+
+			return commonQueryAPIUtils.sResponse("User created successfully");
+
+		} catch (Exception e) {
+			e.printStackTrace();
 			return commonQueryAPIUtils.fCatchResponse(e);
 		}
 	}

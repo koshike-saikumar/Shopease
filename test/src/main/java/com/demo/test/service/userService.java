@@ -11,4 +11,6 @@ public interface userService {
 	
 	public ResponseEntity<?> loginUser( UserRequest user);
 	 public ResponseEntity<?> createUser(UserRequest user) ;
+	 public ResponseEntity<?> updateProfile(UserRequest user) ;
+
 }

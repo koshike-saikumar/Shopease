@@ -23,9 +23,15 @@ public class UserController {
 	@Autowired
 	userService userService;
 
+	@GetMapping("/sai")
+	String sai() {
+		return "hi sai";
+
+	}
+
 	@Autowired
 	private UserRepository userRepo;
-	
+
 	@PostMapping("/user-login")
 	public ResponseEntity<?> loginUser(@RequestBody UserRequest user) {
 		return userService.loginUser(user);
@@ -38,7 +44,12 @@ public class UserController {
 
 	@GetMapping("/user-details")
 	public Map<String, Object> userDetails(@RequestParam String email) {
-		return commonQueryAPIUtils.apiService("us er", userRepo.userDetails(email));
+		return commonQueryAPIUtils.apiService("user", userRepo.userDetails(email));
+	}
+
+	@PostMapping("/update-profile")
+	public ResponseEntity<?> updateProfile(@RequestBody UserRequest user) {
+		return userService.updateProfile(user);
 	}
 
 }
