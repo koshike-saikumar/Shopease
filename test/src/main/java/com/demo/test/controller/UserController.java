@@ -1,6 +1,11 @@
 package com.demo.test.controller;
 
+import java.security.NoSuchAlgorithmException;
+import java.util.Base64;
 import java.util.Map;
+
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -28,6 +33,14 @@ public class UserController {
 		return "hi sai";
 
 	}
+	
+	@GetMapping("/Generate-secret-key")
+	private String generateSecureKey() throws NoSuchAlgorithmException {
+	    KeyGenerator keyGenerator = KeyGenerator.getInstance("HmacSHA256");
+	    keyGenerator.init(256); // Key size for HS256
+	    SecretKey secretKey = keyGenerator.generateKey();
+	    return Base64.getEncoder().encodeToString(secretKey.getEncoded());
+	}
 
 	@Autowired
 	private UserRepository userRepo;
@@ -43,8 +56,8 @@ public class UserController {
 	}
 
 	@GetMapping("/user-details")
-	public Map<String, Object> userDetails(@RequestParam String email) {
-		return commonQueryAPIUtils.apiService("user", userRepo.userDetails(email));
+	public Map<String, Object> userDetails(@RequestParam Integer id) {
+		return commonQueryAPIUtils.apiService("user", userRepo.userDetails(id));
 	}
 
 	@PostMapping("/update-profile")

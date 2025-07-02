@@ -876,9 +876,9 @@ public class commonQueryAPIUtils {
 			}
 		} catch (Exception e) {
 
-			final_data.put("success", false);
-			final_data.put("ResponseCode", "02");
-			final_data.put("ResponseDesc", "Internal server issue");
+			final_data.put("status", false);
+			final_data.put("code", "02");
+			final_data.put("message", "Internal server issue");
 			final_data.put(apiServiceName, "No data found");
 			final_data.put("data_count", 0);
 		}

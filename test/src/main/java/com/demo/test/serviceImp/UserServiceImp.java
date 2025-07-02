@@ -1,6 +1,9 @@
 package com.demo.test.serviceImp;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -13,6 +16,10 @@ import com.demo.test.repository.UserRepository;
 import com.demo.test.request.UserRequest;
 import com.demo.test.service.userService;
 import com.demo.test.utilities.commonQueryAPIUtils;
+
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 
 @Service
 public class UserServiceImp implements userService {
@@ -33,9 +40,17 @@ public class UserServiceImp implements userService {
 
 				List<Map<String, Object>> getUserDetails = userRepo.getUserDetails(email, password);
 				if (getUserDetails.size() > 0) {
+					Map<String, Object> user = getUserDetails.get(0);
+					String token = generateJwtToken(user);
+					// You might want to return the token in the response
+					Map<String, String> response = new HashMap<>();
 
-					// return GenerateJwtToken(getUserDetails.get(0));
-					return commonQueryAPIUtils.sResponse(" Login successful");
+					response.put("status", "true");
+					response.put("code", "01");
+					response.put("message", "Login successful");
+					response.put("token", token);
+					return ResponseEntity.ok(response);
+//					return commonQueryAPIUtils.sResponse(" Login successful");
 
 				} else {
 					System.err.println("user fail");
@@ -49,24 +64,32 @@ public class UserServiceImp implements userService {
 		}
 	}
 
-//	private String GenerateJwtToken(Map<String, Object>  user)   {
-//        var key = Encoding.UTF8.GetBytes("YourSuperLongSecretKeyWithMoreThan32Characters!");
-//        var claims = new List<Claim>
-//        {
-//            new(ClaimTypes.NameIdentifier, user.Id.ToString()),
-//            new(ClaimTypes.Email, user.Email),
-//            new(ClaimTypes.Role, user.Role.ToString())
-//        };
-//
-//        var token = new JwtSecurityToken(
-//            claims: claims,
-//            expires: DateTime.UtcNow.AddHours(3),
-//            signingCredentials: new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256)
-//        );
-//
-//        return new JwtSecurityTokenHandler().WriteToken(token);
-//    }
-//}
+	private String generateJwtToken(Map<String, Object> user) {
+		// For production, load this from secure configuration
+		String secretKey = "Cr3FHTz5qBZVBO04qrqjppCanz0RSyzE0bHJGXHW/p0=";
+
+		// Validate key length (HS256 requires 256-bit/32-byte key)
+		if (secretKey.getBytes(StandardCharsets.UTF_8).length < 32) {
+			throw new IllegalArgumentException("Secret key must be at least 32 characters long");
+		}
+
+		// Token expiration (3 hours)
+		long expirationTime = 1000 * 60 * 60 * 3;
+		Date expirationDate = new Date(System.currentTimeMillis() + expirationTime);
+
+		// Build claims
+		Claims claims = Jwts.claims().setSubject(user.get("email").toString()).setExpiration(expirationDate);
+
+		claims.put("userId", user.get("id"));
+		claims.put("role", user.get("role"));
+		claims.put("name", user.get("name"));
+		claims.put("email", user.get("email"));
+
+
+		// Generate token
+		return Jwts.builder().setClaims(claims)
+				.signWith(SignatureAlgorithm.HS256, secretKey.getBytes(StandardCharsets.UTF_8)).compact();
+	}
 
 	public ResponseEntity<?> createUser(UserRequest user) {
 		String message = "";
@@ -99,17 +122,21 @@ public class UserServiceImp implements userService {
 
 		try {
 			String password = user.getPassword();
-			UserEntity entity = new UserEntity();
-			entity.setEmail(user.getEmail().trim().toLowerCase());
-			entity.setName(user.getName().trim());
+			String name = user.getName().trim();
+			Long Id = user.getId();
+			Integer updateWithPassword = 0;
+
+			Integer updateWithOutPassword = userRepo.updateWithOutPassword(Id, name);
 
 			if (password != null) {
-				entity.setPassword(user.getPassword().trim());
-			 } 
- 
-			userRepo.save(entity);
+				updateWithPassword = userRepo.updateWithPassword(Id, name, password);
+			}
+			if (updateWithOutPassword > 0 || updateWithPassword > 0) {
+				return commonQueryAPIUtils.sResponse("User created successfully");
+			} else {
+				return commonQueryAPIUtils.fDynamicResponse("Something went wrong; the update did not occur.");
 
-			return commonQueryAPIUtils.sResponse("User created successfully");
+			}
 
 		} catch (Exception e) {
 			e.printStackTrace();
